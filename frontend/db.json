@@ -1,0 +1,29 @@
+{
+  "visitors": [
+    {
+      "id": "a1b2c3d4-0001-0000-0000-000000000001",
+      "fullName": "Alice Mwangi",
+      "purpose": "Job Interview",
+      "status": "PENDING"
+    },
+    {
+      "id": "a1b2c3d4-0001-0000-0000-000000000002",
+      "fullName": "Brian Otieno",
+      "purpose": "Client Meeting",
+      "status": "CHECKED_IN"
+    },
+    {
+      "id": "a1b2c3d4-0001-0000-0000-000000000003",
+      "fullName": "Carol Njeri",
+      "purpose": "Delivery",
+      "status": "CHECKED_OUT"
+    },
+    {
+      "id": "a1b2c3d4-0001-0000-0000-000000000004",
+      "fullName": "David Kamau",
+      "purpose": "Tour / Office Visit",
+      "status": "PENDING"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

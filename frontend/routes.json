@@ -1,0 +1,4 @@
+﻿{
+  "/visitors/:id/checkin": "/visitors/:id",
+  "/visitors/:id/checkout": "/visitors/:id"
+}
