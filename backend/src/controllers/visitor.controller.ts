@@ -64,3 +64,17 @@ export async function checkOutVisitor(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to check out visitor" });
   }
 }
+
+/**
+ * GET /visitors/stats
+ * Return statistics aggregations.
+ */
+export async function getVisitorStats(_req: Request, res: Response) {
+  try {
+    const stats = await visitorService.getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch visitor statistics" });
+  }
+}

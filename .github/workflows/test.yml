@@ -1,0 +1,230 @@
+name: CI — Test & E2E
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# ── Global env ─────────────────────────────────────────────
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  #  Backend unit & integration tests
+  # ──────────────────────────────────────────────────────────
+  backend-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: visitor_management
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: backend
+
+      - name: Push schema to test database
+        run: npx prisma db push --accept-data-loss
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/visitor_management
+
+      - name: Run backend tests
+        run: npm test
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/visitor_management
+          JWT_SECRET: test-secret-key
+
+  # ──────────────────────────────────────────────────────────
+  #  Frontend unit tests (Vitest)
+  # ──────────────────────────────────────────────────────────
+  frontend-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run frontend tests
+        run: npx vitest run
+        working-directory: frontend
+
+  # ──────────────────────────────────────────────────────────
+  #  Frontend build (catches TypeScript / Next.js errors)
+  # ──────────────────────────────────────────────────────────
+  frontend-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build Next.js
+        run: npm run build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+
+  # ──────────────────────────────────────────────────────────
+  #  E2E tests (Cypress)
+  # ──────────────────────────────────────────────────────────
+  e2e-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: visitor_management
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ─── Backend setup ───
+      - name: Setup Node.js (backend)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Generate Prisma client (backend)
+        run: npx prisma generate
+        working-directory: backend
+
+      - name: Push schema & seed DB
+        run: npx prisma db push --accept-data-loss
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/visitor_management
+
+      - name: Start backend server
+        run: |
+          npx ts-node src/server.ts &
+          echo "Waiting for backend at http://localhost:4000/health ..."
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:4000/health > /dev/null 2>&1 && break
+            echo "  attempt $i/20 — not ready yet"
+            sleep 2
+          done
+          echo "Backend is up"
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/visitor_management
+          JWT_SECRET: test-secret-key
+          PORT: 4000
+
+      # ─── Frontend setup ───
+      - name: Setup Node.js (frontend)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+
+      - name: Start frontend server
+        run: |
+          npx next start --port 3000 &
+          echo "Frontend PID: $!"
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+          PORT: 3000
+
+      # ─── Cypress ───
+      - name: Run Cypress E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: frontend
+          install: false
+          config: baseUrl=http://localhost:3000
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 60
+
+      - name: Upload Cypress screenshots (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
+          if-no-files-found: ignore
+
+      - name: Upload Cypress videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: frontend/cypress/videos
+          if-no-files-found: ignore

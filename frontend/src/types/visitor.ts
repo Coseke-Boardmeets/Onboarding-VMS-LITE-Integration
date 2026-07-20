@@ -8,6 +8,9 @@ export interface Visitor {
   fullName: string;
   purpose: string;
   status: VisitorStatus;
+  timeIn?: string | null;
+  timeOut?: string | null;
+  createdAt?: string;
 }
 
 export interface CreateVisitorPayload {

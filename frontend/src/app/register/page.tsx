@@ -3,9 +3,10 @@ import VisitorForm from "@/components/VisitorForm";
 
 export default function RegisterPage() {
   return (
-    <main className="mx-auto max-w-md p-6">
-      <h1 className="text-2xl font-semibold mb-4">Register a Visitor</h1>
-      <VisitorForm />
+    <main className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6 dark:bg-slate-950">
+      <div className="w-full max-w-lg">
+        <VisitorForm />
+      </div>
     </main>
   );
 }

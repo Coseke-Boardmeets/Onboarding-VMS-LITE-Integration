@@ -7,49 +7,75 @@
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+const getHeaders = () => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+  
+  return headers;
+};
+
 export const apiClient = {
   /**
    * Make a GET request to the given path.
-   * TODO: Implement using fetch(). Return the parsed JSON response.
    */
   get: async (path: string) => {
-    // TODO
-    const response = await fetch(`${BASE_URL}${path}`);
+    const response = await fetch(`${BASE_URL}${path}`, {
+      headers: getHeaders(),
+    });
     if (!response.ok) {
-      throw new Error(`GET ${path} failed: ${response.statusText}`);
+      let errMsg = `GET ${path} failed`;
+      try {
+        const errJson = await response.json();
+        if (errJson && errJson.error) errMsg = errJson.error;
+      } catch {}
+      throw new Error(errMsg);
     }
     return response.json();
   },
 
   /**
    * Make a POST request with a JSON body to the given path.
-   * TODO: Implement using fetch() with method "POST" and correct headers.
    */
   post: async (path: string, body: unknown) => {
-    // TODO
     const response = await fetch(`${BASE_URL}${path}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getHeaders(),
       body: JSON.stringify(body),
     });
     if (!response.ok) {
-      throw new Error(`POST ${path} failed: ${response.statusText}`);
+      let errMsg = `POST ${path} failed`;
+      try {
+        const errJson = await response.json();
+        if (errJson && errJson.error) errMsg = errJson.error;
+      } catch {}
+      throw new Error(errMsg);
     }
     return response.json();
   },
 
   /**
    * Make a PUT request to the given path (no body needed for check-in/out).
-   * TODO: Implement using fetch() with method "PUT".
    */
   put: async (path: string) => {
-    // TODO
-        const response = await fetch(`${BASE_URL}${path}`, {
+    const response = await fetch(`${BASE_URL}${path}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getHeaders(),
     });
     if (!response.ok) {
-      throw new Error(`PUT ${path} failed: ${response.statusText}`);
+      let errMsg = `PUT ${path} failed`;
+      try {
+        const errJson = await response.json();
+        if (errJson && errJson.error) errMsg = errJson.error;
+      } catch {}
+      throw new Error(errMsg);
     }
     return response.json();
   },
