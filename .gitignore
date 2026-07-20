@@ -191,4 +191,12 @@ dist
 
 # Freebuff state
 .freebuff/
+# Cypress E2E test outputs
+cypress/videos/
+cypress/screenshots/
 
+# Additional
+.vscode/
+.idea/
+prisma/dev.db
+prisma/*.db
