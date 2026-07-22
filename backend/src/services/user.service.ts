@@ -12,7 +12,11 @@ export async function findById(id: string) {
   });
 }
 
-export async function create(data: { email: string; passwordHash: string; fullName: string }) {
+export async function create(data: {
+  email: string;
+  passwordHash: string;
+  fullName: string;
+}) {
   return await prisma.user.create({
     data: {
       email: data.email.toLowerCase(),

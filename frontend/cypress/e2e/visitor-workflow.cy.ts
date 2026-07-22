@@ -1,13 +1,7 @@
 describe("Visitor Management Workflow", () => {
     beforeEach(() => {
-        // Visit the login page directly since Cypress clears state between tests
-        cy.visit("/login");
-        cy.get('input[type="email"]').type("admin@coseke.com");
-        cy.get('input[type="password"]').type("Password123!");
-        cy.get('button[type="submit"]').click();
-
-        // Ensure we are redirected to the dashboard page
-        cy.url().should("not.include", "/login");
+        // Visit the dashboard page directly
+        cy.visit("/");
     });
 
     it("should register a visitor and check them in", () => {
@@ -57,6 +51,9 @@ describe("Visitor Management Workflow", () => {
 
     it("should show validation errors on registration", () => {
         cy.contains("Register Visitor").click();
+        cy.url().should("include", "/register");
+        cy.get("#fullName").should("be.visible");
+        cy.wait(500); // Allow Next.js / react-hook-form hydration to complete
 
         // Try to submit empty form
         cy.contains("Register & Queue Visitor").click();

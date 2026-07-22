@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import * as visitorService from "../services/visitor.service"
+import * as visitorService from "../services/visitor.service";
 
 /**
  * GET /visitors
  * Should return all visitors as a JSON array.
  */
 export async function getAllVisitors(_req: Request, res: Response) {
-    try {
+  try {
     const visitors = await visitorService.findAll();
     res.json(visitors);
   } catch (error) {
@@ -18,7 +18,7 @@ export async function getAllVisitors(_req: Request, res: Response) {
  * Should create a new visitor. Body: { fullName, purpose }
  */
 export async function createVisitor(req: Request, res: Response) {
-    try {
+  try {
     const { fullName, purpose } = req.body;
     const visitor = await visitorService.create({ fullName, purpose });
     res.status(201).json(visitor);

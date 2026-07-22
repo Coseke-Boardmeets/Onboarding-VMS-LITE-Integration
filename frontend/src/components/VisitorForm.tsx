@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { CreateVisitorPayload } from "@/types/visitor";
 import { apiClient } from "@/lib/apiClient";
 import Link from "next/link";
+import Image from "next/image";
 
 // Import MUI icons for details
 import PersonIcon from "@mui/icons-material/Person";
@@ -39,7 +40,9 @@ export default function VisitorForm() {
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err) {
       setErrorMessage(
-        err instanceof Error ? err.message : "Failed to register visitor. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Failed to register visitor. Please try again.",
       );
     }
   }
@@ -50,10 +53,18 @@ export default function VisitorForm() {
       <div className="bg-gradient-to-r from-blue-700 to-red-600 px-8 py-6 text-white">
         <div className="flex items-center space-x-3">
           <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl bg-white p-1 border border-blue-500 shadow-sm overflow-hidden">
-            <img src="/coseke_logo.png" alt="Coseke Logo" className="h-full w-full object-contain" />
+            <Image
+              src="/coseke_logo.png"
+              alt="Coseke Logo"
+              width={40}
+              height={40}
+              className="h-full w-full object-contain"
+            />
           </div>
           <div>
-            <h2 className="text-xl font-extrabold tracking-tight">Visitor Registration</h2>
+            <h2 className="text-xl font-extrabold tracking-tight">
+              Visitor Registration
+            </h2>
             <p className="text-xs text-indigo-50 mt-0.5 font-semibold">
               Fill in details below to sign in a new guest.
             </p>
@@ -62,10 +73,17 @@ export default function VisitorForm() {
       </div>
 
       <div className="p-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mb-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          action="javascript:void(0)"
+          className="space-y-5 mb-6"
+        >
           {/* Full Name input */}
           <div className="space-y-2">
-            <label htmlFor="fullName" className="block text-sm font-extrabold text-slate-905 dark:text-slate-100">
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-extrabold text-slate-905 dark:text-slate-100"
+            >
               Full name <span className="text-rose-600">*</span>
             </label>
             <div className="relative">
@@ -89,7 +107,10 @@ export default function VisitorForm() {
 
           {/* Purpose of Visit input */}
           <div className="space-y-2">
-            <label htmlFor="purpose" className="block text-sm font-extrabold text-slate-905 dark:text-slate-100">
+            <label
+              htmlFor="purpose"
+              className="block text-sm font-extrabold text-slate-905 dark:text-slate-100"
+            >
               Purpose of visit <span className="text-rose-600">*</span>
             </label>
             <div className="relative">

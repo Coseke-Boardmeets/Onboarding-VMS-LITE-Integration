@@ -34,12 +34,10 @@ describe("Visitor API Routes", () => {
 
       (visitorService.create as jest.Mock).mockResolvedValue(mockVisitor);
 
-      const response = await request(app)
-        .post("/visitors")
-        .send({
-          fullName: "John Doe",
-          purpose: "Interview",
-        });
+      const response = await request(app).post("/visitors").send({
+        fullName: "John Doe",
+        purpose: "Interview",
+      });
 
       expect(response.status).toBe(201);
       expect(response.body.fullName).toBe("John Doe");
@@ -47,23 +45,19 @@ describe("Visitor API Routes", () => {
     });
 
     it("should reject visitor without fullName", async () => {
-      const response = await request(app)
-        .post("/visitors")
-        .send({
-          purpose: "Interview",
-        });
+      const response = await request(app).post("/visitors").send({
+        purpose: "Interview",
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toContain("fullName is required");
     });
 
     it("should reject visitor with short fullName", async () => {
-      const response = await request(app)
-        .post("/visitors")
-        .send({
-          fullName: "J",
-          purpose: "Interview",
-        });
+      const response = await request(app).post("/visitors").send({
+        fullName: "J",
+        purpose: "Interview",
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toContain("at least 2 characters");

@@ -1,12 +1,11 @@
 import { prisma } from "./db";
 
-
 /**
  * Retrieve all visitors from the database, newest first.
  */
 export async function findAll() {
-    return await prisma.visitor.findMany({
-    orderBy: { createdAt: "desc" }
+  return await prisma.visitor.findMany({
+    orderBy: { createdAt: "desc" },
   });
 }
 
@@ -14,26 +13,25 @@ export async function findAll() {
  * Create a new visitor record with PENDING status.
  */
 export async function create(data: { fullName: string; purpose: string }) {
-    return await prisma.visitor.create({
+  return await prisma.visitor.create({
     data: {
       fullName: data.fullName,
       purpose: data.purpose,
-      status: "PENDING"
-    }
+      status: "PENDING",
+    },
   });
-
 }
 
 /**
  * Mark a visitor as CHECKED_IN and record their arrival time.
  */
 export async function checkIn(id: string) {
-    return await prisma.visitor.update({
+  return await prisma.visitor.update({
     where: { id },
     data: {
       status: "CHECKED_IN",
-      timeIn: new Date()
-    }
+      timeIn: new Date(),
+    },
   });
 }
 
@@ -41,12 +39,12 @@ export async function checkIn(id: string) {
  * Mark a visitor as CHECKED_OUT and record their departure time.
  */
 export async function checkOut(id: string) {
-    return await prisma.visitor.update({
+  return await prisma.visitor.update({
     where: { id },
     data: {
       status: "CHECKED_OUT",
-      timeOut: new Date()
-    }
+      timeOut: new Date(),
+    },
   });
 }
 
@@ -55,24 +53,32 @@ export async function checkOut(id: string) {
  */
 export async function getStats() {
   const visitors = await prisma.visitor.findMany({
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 
   const now = new Date();
-  
+
   // Start of today
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+
   // Start of 7 days ago
-  const startOfLast7Days = new Date(startOfToday.getTime() - 7 * 24 * 60 * 60 * 1000);
-  
+  const startOfLast7Days = new Date(
+    startOfToday.getTime() - 7 * 24 * 60 * 60 * 1000,
+  );
+
   // Start of 30 days ago
-  const startOfLast30Days = new Date(startOfToday.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const startOfLast30Days = new Date(
+    startOfToday.getTime() - 30 * 24 * 60 * 60 * 1000,
+  );
 
   let todayCount = 0;
   let weekCount = 0;
   let monthCount = 0;
-  
+
   const purposeCounts: Record<string, number> = {};
   const dailyCounts: Record<string, number> = {};
 
@@ -85,7 +91,7 @@ export async function getStats() {
 
   for (const visitor of visitors) {
     const createdDate = new Date(visitor.createdAt);
-    
+
     // Period checks
     if (createdDate >= startOfToday) {
       todayCount++;

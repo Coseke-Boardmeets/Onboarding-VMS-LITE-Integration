@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import Image from "next/image";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -15,7 +16,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 export default function LoginPage() {
-  const { user, loading, login } = useAuth();
+  const { loading, login } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -25,38 +26,39 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Theme Sync
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "light";
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    return savedTheme === "dark" || (!savedTheme && prefersDark)
+      ? "dark"
+      : "light";
+  });
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-      setTheme("dark");
+    if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
-      setTheme("light");
       document.documentElement.classList.remove("dark");
     }
-  }, []);
+  }, [theme]);
 
   const toggleTheme = () => {
     if (theme === "light") {
       setTheme("dark");
-      document.documentElement.classList.add("dark");
       localStorage.setItem("theme", "dark");
     } else {
       setTheme("light");
-      document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
   };
 
   // Redirect if logged in
   useEffect(() => {
-    if (!loading && user) {
-      router.push("/");
-    }
-  }, [user, loading, router]);
+    router.push("/");
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +73,9 @@ export default function LoginPage() {
     try {
       await login(email, password);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Authentication failed.");
+      setErrorMessage(
+        err instanceof Error ? err.message : "Authentication failed.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -82,7 +86,9 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-900 dark:bg-slate-950">
         <div className="flex flex-col items-center space-y-4">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-700 border-t-blue-500"></div>
-          <span className="text-sm font-semibold text-slate-400">Restoring session...</span>
+          <span className="text-sm font-semibold text-slate-400">
+            Restoring session...
+          </span>
         </div>
       </div>
     );
@@ -111,13 +117,20 @@ export default function LoginPage() {
         {/* Branding Header */}
         <div className="flex flex-col items-center mb-8 text-center">
           <div className="h-14 w-14 mb-4 flex items-center justify-center rounded-2xl bg-white p-2 border border-slate-200 dark:border-slate-800 shadow-md">
-            <img src="/coseke_logo.png" alt="Coseke Logo" className="h-full w-full object-contain" />
+            <Image
+              src="/coseke_logo.png"
+              alt="Coseke Logo"
+              width={40}
+              height={40}
+              className="h-full w-full object-contain"
+            />
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Reception Desk Portal
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-semibold max-w-[280px]">
-            Log in to manage visitors, check-ins, and view real-time site analytics.
+            Log in to manage visitors, check-ins, and view real-time site
+            analytics.
           </p>
         </div>
 
@@ -169,7 +182,11 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 dark:text-slate-500 dark:hover:text-slate-300 cursor-pointer"
                 >
-                  {showPassword ? <VisibilityOffIcon className="h-5 w-5" /> : <VisibilityIcon className="h-5 w-5" />}
+                  {showPassword ? (
+                    <VisibilityOffIcon className="h-5 w-5" />
+                  ) : (
+                    <VisibilityIcon className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>

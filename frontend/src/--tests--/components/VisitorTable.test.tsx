@@ -4,96 +4,96 @@ import VisitorTable from "../../components/VisitorTable";
 import { Visitor } from "@/types/visitor";
 
 describe("VisitorTable Component", () => {
-    const mockVisitors: Visitor[] = [
-        {
-            id: "1",
-            fullName: "John Doe",
-            purpose: "Interview",
-            status: "PENDING",
-        },
-        {
-            id: "2",
-            fullName: "Jane Smith",
-            purpose: "Meeting",
-            status: "CHECKED_IN",
-        },
-    ];
+  const mockVisitors: Visitor[] = [
+    {
+      id: "1",
+      fullName: "John Doe",
+      purpose: "Interview",
+      status: "PENDING",
+    },
+    {
+      id: "2",
+      fullName: "Jane Smith",
+      purpose: "Meeting",
+      status: "CHECKED_IN",
+    },
+  ];
 
-    const mockOnCheckIn = vi.fn();
-    const mockOnCheckOut = vi.fn();
+  const mockOnCheckIn = vi.fn();
+  const mockOnCheckOut = vi.fn();
 
-    it("should render visitor table with data", () => {
-        render(
-            <VisitorTable
-                visitors={mockVisitors}
-                onCheckIn={mockOnCheckIn}
-                onCheckOut={mockOnCheckOut}
-            />
-        );
+  it("should render visitor table with data", () => {
+    render(
+      <VisitorTable
+        visitors={mockVisitors}
+        onCheckIn={mockOnCheckIn}
+        onCheckOut={mockOnCheckOut}
+      />,
+    );
 
-        expect(screen.getByText("John Doe")).toBeInTheDocument();
-        expect(screen.getByText("Jane Smith")).toBeInTheDocument();
-    });
+    expect(screen.getByText("John Doe")).toBeInTheDocument();
+    expect(screen.getByText("Jane Smith")).toBeInTheDocument();
+  });
 
-    it("should display correct status badges", () => {
-        render(
-            <VisitorTable
-                visitors={mockVisitors}
-                onCheckIn={mockOnCheckIn}
-                onCheckOut={mockOnCheckOut}
-            />
-        );
+  it("should display correct status badges", () => {
+    render(
+      <VisitorTable
+        visitors={mockVisitors}
+        onCheckIn={mockOnCheckIn}
+        onCheckOut={mockOnCheckOut}
+      />,
+    );
 
-        expect(screen.getByText("Pending")).toBeInTheDocument();
-        expect(screen.getByText("Checked in")).toBeInTheDocument();
-    });
+    expect(screen.getByText("Pending")).toBeInTheDocument();
+    expect(screen.getByText("Checked in")).toBeInTheDocument();
+  });
 
-    it("should call onCheckIn when Check In button clicked", () => {
-        render(
-            <VisitorTable
-                visitors={mockVisitors}
-                onCheckIn={mockOnCheckIn}
-                onCheckOut={mockOnCheckOut}
-            />
-        );
+  it("should call onCheckIn when Check In button clicked", () => {
+    render(
+      <VisitorTable
+        visitors={mockVisitors}
+        onCheckIn={mockOnCheckIn}
+        onCheckOut={mockOnCheckOut}
+      />,
+    );
 
-        const checkInButtons = screen.getAllByText("Check in");
-        fireEvent.click(checkInButtons[0]);
+    const checkInButtons = screen.getAllByText("Check in");
+    fireEvent.click(checkInButtons[0]);
 
-        expect(mockOnCheckIn).toHaveBeenCalledWith("1");
-    });
+    expect(mockOnCheckIn).toHaveBeenCalledWith("1");
+  });
 
-    it("should call onCheckOut when Check Out button clicked", () => {
-        render(
-            <VisitorTable
-                visitors={mockVisitors}
-                onCheckIn={mockOnCheckIn}
-                onCheckOut={mockOnCheckOut}
-            />
-        );
+  it("should call onCheckOut when Check Out button clicked", () => {
+    render(
+      <VisitorTable
+        visitors={mockVisitors}
+        onCheckIn={mockOnCheckIn}
+        onCheckOut={mockOnCheckOut}
+      />,
+    );
 
-        const checkOutButtons = screen.getAllByText("Check out");
-        fireEvent.click(checkOutButtons[0]);
+    const checkOutButtons = screen.getAllByText("Check out");
+    fireEvent.click(checkOutButtons[0]);
 
-        expect(mockOnCheckOut).toHaveBeenCalledWith("2");
-    });
+    expect(mockOnCheckOut).toHaveBeenCalledWith("2");
+  });
 
-    it("should show Completed for checked out visitors", () => {
-        const checkedOutVisitor: Visitor = {
-            id: "3",
-            fullName: "Bob Johnson",
-            purpose: "Delivery",
-            status: "CHECKED_OUT",
-        };
+  it("should show Completed for checked out visitors", () => {
+    const checkedOutVisitor: Visitor = {
+      id: "3",
+      fullName: "Bob Johnson",
+      purpose: "Delivery",
+      status: "CHECKED_OUT",
+    };
 
-        render(
-            <VisitorTable
-                visitors={[checkedOutVisitor]}
-                onCheckIn={mockOnCheckIn}
-                onCheckOut={mockOnCheckOut}
-            />
-        );
+    render(
+      <VisitorTable
+        visitors={[checkedOutVisitor]}
+        onCheckIn={mockOnCheckIn}
+        onCheckOut={mockOnCheckOut}
+      />,
+    );
 
-        expect(screen.getByText("Completed")).toBeInTheDocument();
-    });
+    expect(screen.getByText("Completed")).toBeInTheDocument();
+  });
 });

@@ -28,7 +28,9 @@ async function seedUser() {
       const passwordHash = await bcrypt.hash("Password123!", 10);
       const fullName = "System Administrator";
       await userService.create({ email, passwordHash, fullName });
-      console.log("Seeded default receptionist account: admin@coseke.com / Password123!");
+      console.log(
+        "Seeded default receptionist account: admin@coseke.com / Password123!",
+      );
     }
   } catch (error) {
     console.error("Auto-seeding failed:", error);
