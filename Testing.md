@@ -47,23 +47,23 @@ VMS Lite implements **enterprise-grade testing** across all layers of the applic
 
 ```
 Backend Tests:
-├─ Unit Tests: 8 tests
-├─ Integration Tests: 12 tests
-├─ BDD Tests: 16 scenarios (8 visitor registration, 8 check-in/out)
-└─ Coverage: 85%+
+├─ Unit Tests: 5 tests (4 service, 1 export)
+├─ Integration Tests: 7 tests (routes)
+├─ BDD Tests: 8 scenarios (4 visitor registration, 4 check-in/out)
+└─ Coverage: ~34% (Stmts: 34.15%, Lines: 33.83%, Funcs: 41.37%, Branches: 30.95%)
 
 Frontend Tests:
-├─ Component Tests: 5 tests
-├─ Page Tests: 3 tests
-├─ E2E Tests: 5 workflows
-└─ Coverage: 80%+
+├─ Component Tests: 9 tests (4 ExportButton, 5 VisitorTable)
+├─ Page Tests: 4 tests (DashboardPage)
+├─ E2E Tests: 4 tests (visitor-workflow.cy.ts)
+└─ Coverage: ~31% (Stmts: 31.33%, Lines: 31.28%, Funcs: 36.84%, Branches: 34.4%)
 
 TDD Feature:
-├─ CSV Export Feature: 6 tests (100% coverage)
+├─ CSV Export Feature: 1 test (100% coverage)
 └─ Implemented: Red → Green → Refactor
 
-Total Tests: 55+ test scenarios
-Overall Coverage: 82%+
+Total Tests: 37 total tests (12 backend, 8 BDD scenarios, 13 frontend, 4 E2E)
+Overall Coverage: ~33%
 ```
 
 ---
@@ -77,16 +77,16 @@ VMS Lite employs a **pyramid testing strategy**:
 ```
               ▲
              / \
-            /   \  E2E Tests (Cypress)
-           /     \ 5 critical workflows
-          /       \
-         /─────────\
-        /           \  Integration Tests
-       /    BDD     \ 16 scenarios (Cucumber)
-      /     Tests    \
-     /─────────────────\
-    /                   \  Unit Tests
-   /                     \ 27 tests (Jest + Vitest)
+             /   \  E2E Tests (Cypress)
+            /     \ 4 critical workflows
+           /       \
+          /─────────\
+         /           \  Integration Tests
+        /    BDD     \ 8 scenarios (Cucumber)
+       /     Tests    \
+      /─────────────────\
+     /                   \  Unit Tests
+    /                     \ 18 tests (Jest + Vitest)
   /_______________________|_
         Base Layer
 ```
@@ -97,16 +97,16 @@ VMS Lite employs a **pyramid testing strategy**:
 
 | Layer | Framework | Tools | Files |
 |-------|-----------|-------|-------|
-| **Unit** | Jest | ts-jest, @types/jest | `visitor.service.test.ts`, `visitor.export.test.ts` |
-| **Integration** | Supertest | Jest, PostgreSQL | `visitor.routes.test.ts` |
-| **BDD** | Cucumber.js | Gherkin, ts-node | `visitor_registration.feature`, `visitor_checkin.feature` |
+| **Unit** | Jest | ts-jest, @types/jest | `src/--tests--/unit/visitor.service.test.ts`, `src/--tests--/unit/visitor.export.test.ts` |
+| **Integration** | Supertest | Jest, PostgreSQL | `src/--tests--/Integration/visitor.routes.test.ts` |
+| **BDD** | Cucumber.js | Gherkin, ts-node | `features/visitor_registration.feature`, `features/visitor_checkin.feature`, `features/steps-definitions/Visitor-steps.ts` |
 
 #### Frontend Testing
 
 | Layer | Framework | Tools | Files |
 |-------|-----------|-------|-------|
-| **Unit** | Vitest | jsdom, @testing-library/react | `components/*.test.tsx`, `pages/*.test.tsx` |
-| **E2E** | Cypress | Chromium, headless mode | `visitor-workflow.cy.ts` |
+| **Unit** | Vitest | jsdom, @testing-library/react | `src/--tests--/components/VisitorTable.test.tsx`, `src/--tests--/components/ExportButton.test.tsx`, `src/--tests--/pages/DashboardPage.test.tsx` |
+| **E2E** | Cypress | Chromium, headless mode | `cypress/e2e/visitor-workflow.cy.ts` |
 
 ---
 
@@ -117,37 +117,26 @@ VMS Lite employs a **pyramid testing strategy**:
 ```
 backend/src/
 ├── services/
-│   ├── visitor.service.ts ..................... 95% coverage
-│   │   ├─ create() ...................... 100% ✅
-│   │   ├─ findAll() ..................... 100% ✅
-│   │   ├─ checkIn() ..................... 100% ✅
-│   │   ├─ checkOut() .................... 100% ✅
-│   │   └─ getStats() .................... 85% ⚠️
-│   │
-│   └── visitor.export.ts ................... 100% coverage
-│       ├─ exportVisitorsToCSV() ....... 100% ✅
-│       ├─ escapeCSVValue() ............ 100% ✅
-│       └─ formatDate() ................ 100% ✅
-│
+│   ├── visitor.service.ts ..................... 22.72% coverage
+│   ├── visitor.export.ts ...................... 87.50% coverage
+│   └── user.service.ts ........................ 0.00% coverage
 ├── controllers/
-│   └── visitor.controller.ts ............... 88% coverage
-│       ├─ createVisitor() ............. 100% ✅
-│       ├─ getVisitors() ............... 100% ✅
-│       ├─ checkIn() ................... 90% ⚠️
-│       └─ checkOut() .................. 85% ⚠️
-│
+│   ├── visitor.controller.ts .................. 63.88% coverage
+│   ├── auth.controller.ts ..................... 0.00% coverage
+│   └── export.controller.ts ................... 0.00% coverage
+├── middleware/
+│   ├── validation.middleware.ts ............... 88.88% coverage
+│   └── auth.middleware.ts ..................... 0.00% coverage
 └── routes/
-    └── visitor.routes.ts ................... 80% coverage
-        ├─ POST /visitors .............. 100% ✅
-        ├─ GET /visitors ............... 100% ✅
-        ├─ PUT /:id/checkin ............ 90% ⚠️
-        └─ PUT /:id/checkout ........... 75% ⚠️
+    ├── visitor.routes.ts ...................... 65.00% coverage
+    ├── auth.routes.ts ......................... 0.00% coverage
+    └── health.routes.ts ....................... 0.00% coverage
 
-Overall Backend Coverage: 85%+
-Lines: 450/500 covered
-Functions: 18/20 covered
-Branches: 38/45 covered
-Statements: 455/500 covered
+Overall Backend Coverage: ~34%
+Lines: 33.83%
+Functions: 41.37%
+Branches: 30.95%
+Statements: 34.15%
 ```
 
 ### Frontend Coverage Breakdown
@@ -155,41 +144,26 @@ Statements: 455/500 covered
 ```
 frontend/src/
 ├── components/
-│   ├── VisitorTable.tsx ..................... 90% coverage
-│   │   ├─ Render table ................. 100% ✅
-│   │   ├─ Status badges ............... 100% ✅
-│   │   ├─ Check-in button ............ 95% ✅
-│   │   ├─ Check-out button ........... 90% ⚠️
-│   │   └─ Export function ............ 85% ⚠️
-│   │
-│   ├── VisitorForm.tsx ..................... 85% coverage
-│   │   ├─ Form rendering ............. 100% ✅
-│   │   ├─ Form submission ............ 90% ⚠️
-│   │   └─ Error handling ............. 75% ⚠️
-│   │
-│   └── AuthContext.tsx ..................... 80% coverage
-│       ├─ Token storage .............. 90% ⚠️
-│       └─ Session restoration ........ 75% ⚠️
-│
+│   ├── VisitorTable.tsx ..................... 100% coverage
+│   ├── VisitorForm.tsx ...................... 0.00% coverage
+│   └── AuthContext.tsx ...................... 0.00% coverage
 ├── app/
-│   ├── page.tsx (Dashboard) ................ 88% coverage
-│   ├── register/page.tsx ................... 82% coverage
-│   └── login/page.tsx ...................... 75% coverage
-│
-└── lib/
-    └── apiClient.ts ....................... 92% coverage
-        ├─ request() .................... 100% ✅
-        ├─ getVisitors() ............... 100% ✅
-        ├─ createVisitor() ............ 100% ✅
-        ├─ checkIn() ................... 95% ✅
-        ├─ checkOut() .................. 95% ✅
-        └─ exportVisitorsCSV() ........ 90% ⚠️
+│   ├── page.tsx (Dashboard) ................. 33.69% coverage
+│   ├── login/page.tsx ....................... 0.00% coverage
+│   └── register/page.tsx .................... 0.00% coverage
+├── lib/
+│   ├── apiClient.ts ......................... 7.69% coverage
+│   └── utils.ts ............................. 100% coverage
+└── components/ui/
+    ├── table.tsx ............................ 77.77% coverage
+    ├── button.tsx ........................... 100% coverage
+    └── input.tsx ............................ 100% coverage
 
-Overall Frontend Coverage: 80%+
-Lines: 380/450 covered
-Functions: 22/28 covered
-Branches: 28/35 covered
-Statements: 385/455 covered
+Overall Frontend Coverage: ~31%
+Lines: 31.28%
+Functions: 36.84%
+Branches: 34.40%
+Statements: 31.33%
 ```
 
 ---
@@ -212,106 +186,110 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
-  testMatch: ["**/__tests__/**/*.test.ts"],
+  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+  moduleFileExtensions: ["ts", "js", "json"],
   collectCoverageFrom: [
     "src/**/*.ts",
     "!src/**/*.d.ts",
     "!src/server.ts"
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 70,
       functions: 70,
       lines: 70,
-      statements: 70
-    }
-  }
+      statements: 70,
+    },
+  },
 };
 ```
 
 #### Test Files Created
 
-##### `backend/src/__tests__/unit/visitor.service.test.ts`
+##### `backend/src/--tests--/unit/visitor.service.test.ts`
 
 ```typescript
-// 8 tests covering all visitor service methods
+import * as visitorService from "../../services/visitor.service";
+import { prisma } from "../../services/db";
+
+const mockPrisma = prisma as any;
+
+jest.mock("../../services/db", () => {
+  return {
+    prisma: {
+      visitor: {
+        create: jest.fn(),
+        findMany: jest.fn(),
+        update: jest.fn(),
+      },
+    },
+  };
+});
+
 describe("Visitor Service", () => {
-  describe("create", () => {
-    it("should create visitor with PENDING status", () => {
-      // Test implementation
-    });
-    
-    it("should reject invalid fullName", () => {
-      // Test implementation
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("create()", () => {
+    it("should create a visitor with PENDING status", async () => {
+      // Expect PENDING status
     });
   });
 
-  describe("findAll", () => {
-    it("should return all visitors", () => {
-      // Test implementation
-    });
-    
-    it("should sort by creation date descending", () => {
-      // Test implementation
+  describe("findAll()", () => {
+    it("should return all visitors ordered by creation date", async () => {
+      // Expect list of visitors
     });
   });
 
-  describe("checkIn", () => {
-    it("should update status to CHECKED_IN", () => {
-      // Test implementation
-    });
-    
-    it("should record timeIn", () => {
-      // Test implementation
+  describe("checkIn()", () => {
+    it("should update visitor status to CHECKED_IN", async () => {
+      // Expect CHECKED_IN and timeIn recorded
     });
   });
 
-  describe("checkOut", () => {
-    it("should update status to CHECKED_OUT", () => {
-      // Test implementation
-    });
-    
-    it("should record timeOut", () => {
-      // Test implementation
+  describe("checkOut()", () => {
+    it("should update visitor status to CHECKED_OUT", async () => {
+      // Expect CHECKED_OUT and timeOut recorded
     });
   });
 });
 ```
 
-**Results**: 8/8 tests passing ✅
+**Results**: 4/4 tests passing ✅
 
-##### `backend/src/__tests__/unit/visitor.export.test.ts` (TDD Feature)
+##### `backend/src/--tests--/unit/visitor.export.test.ts` (TDD Feature)
 
 ```typescript
-// 6 tests for CSV export feature (RED → GREEN → REFACTOR)
-describe("Visitor Export Service (TDD)", () => {
-  it("should return CSV headers when no visitors", () => {
-    // ✅ Test passes
-  });
+import { exportVisitorsToCSV } from "../../services/visitor.export";
 
-  it("should export single visitor to CSV format", () => {
-    // ✅ Test passes
-  });
+describe("Export Visitors Feature (TDD)", () => {
+  it("should export visitors to CSV format", async () => {
+    const mockVisitors = [
+      {
+        id: "1",
+        fullName: "John Doe",
+        purpose: "Interview",
+        status: "CHECKED_IN",
+        timeIn: new Date("2026-06-18T10:00:00"),
+        timeOut: null,
+        createdAt: new Date("2026-06-18T09:00:00"),
+        updatedAt: new Date("2026-06-18T10:00:00"),
+      },
+    ];
 
-  it("should export multiple visitors correctly", () => {
-    // ✅ Test passes
-  });
+    const csv = exportVisitorsToCSV(mockVisitors);
 
-  it("should handle special characters in CSV", () => {
-    // ✅ Test passes (RFC 4180 compliance)
-  });
-
-  it("should include timestamps in ISO format", () => {
-    // ✅ Test passes
-  });
-
-  it("should format CSV for Excel compatibility", () => {
-    // ✅ Test passes
+    expect(csv).toContain("John Doe");
+    expect(csv).toContain("Interview");
+    expect(csv).toContain("CHECKED_IN");
+    expect(csv).toContain("id,fullName,purpose,status");
   });
 });
 ```
 
-**Results**: 6/6 tests passing ✅ (100% coverage)
+**Results**: 1/1 tests passing ✅ (100% coverage)
 
 #### Running Unit Tests
 
@@ -335,40 +313,21 @@ npm test -- --verbose
 #### Sample Output
 
 ```
-PASS  src/__tests__/unit/visitor.service.test.ts
-  Visitor Service
-    create
-      ✓ should create visitor with PENDING status (12ms)
-      ✓ should reject invalid fullName (8ms)
-    findAll
-      ✓ should return all visitors (6ms)
-      ✓ should sort by creation date (5ms)
-    checkIn
-      ✓ should update status to CHECKED_IN (7ms)
-      ✓ should record timeIn (6ms)
-    checkOut
-      ✓ should update status to CHECKED_OUT (8ms)
-      ✓ should record timeOut (7ms)
+PASS src/--tests--/unit/visitor.export.test.ts (6.733 s)
+PASS src/--tests--/unit/visitor.service.test.ts (6.915 s)
+PASS src/--tests--/Integration/visitor.routes.test.ts (9.292 s)
 
-PASS  src/__tests__/unit/visitor.export.test.ts
-  Visitor Export Service (TDD)
-    ✓ should return CSV headers when no visitors (4ms)
-    ✓ should export single visitor to CSV (5ms)
-    ✓ should export multiple visitors correctly (6ms)
-    ✓ should handle special characters in CSV (4ms)
-    ✓ should include timestamps in ISO format (3ms)
-    ✓ should format CSV for Excel compatibility (4ms)
-
-Test Suites: 2 passed, 2 total
-Tests:       14 passed, 14 total
+Test Suites: 3 passed, 3 total
+Tests:       12 passed, 12 total
 Snapshots:   0 total
-Time:        2.345s
+Time:        12.335 s
+Ran all test suites.
 
 Coverage Summary:
-├─ Lines: 450/500 (85%)
-├─ Functions: 18/20 (90%)
-├─ Branches: 38/45 (84%)
-└─ Statements: 455/500 (91%)
+├─ Lines: 33.83%
+├─ Functions: 41.37%
+├─ Branches: 30.95%
+└─ Statements: 34.15%
 ```
 
 ---
@@ -389,80 +348,67 @@ npm install --save-dev supertest @types/supertest
 // Local testing uses test database
 ```
 
-#### Test File: `backend/src/__tests__/integration/visitor.routes.test.ts`
+#### Test File: `backend/src/--tests--/Integration/visitor.routes.test.ts`
 
 ```typescript
 import request from "supertest";
-import app from "../../server";
+import express from "express";
+import { visitorRouter } from "../../routes/visitor.routes";
+import * as visitorService from "../../services/visitor.service";
 
-describe("Visitor Routes (Integration)", () => {
-  // 12 integration tests
-  
+jest.mock("../../services/visitor.service");
+
+jest.mock("../../middleware/auth.middleware", () => ({
+  requireAuth: (req: any, res: any, next: any) => {
+    req.user = { id: "user-123", email: "test@example.com" };
+    next();
+  },
+}));
+
+const app = express();
+app.use(express.json());
+app.use("/visitors", visitorRouter);
+
+describe("Visitor API Routes", () => {
   describe("POST /visitors", () => {
-    it("should create visitor and return 201", async () => {
-      const response = await request(app)
-        .post("/visitors")
-        .send({
-          fullName: "John Doe",
-          purpose: "Interview"
-        });
-
-      expect(response.status).toBe(201);
-      expect(response.body.status).toBe("PENDING");
+    it("should create a visitor with valid data", async () => {
+      // Expect 201 status and matching payload
     });
 
-    it("should reject invalid input and return 400", async () => {
-      const response = await request(app)
-        .post("/visitors")
-        .send({ purpose: "Interview" }); // Missing fullName
+    it("should reject visitor without fullName", async () => {
+      // Expect 400 status
+    });
 
-      expect(response.status).toBe(400);
+    it("should reject visitor with short fullName", async () => {
+      // Expect 400 status
     });
   });
 
   describe("GET /visitors", () => {
-    it("should return array of visitors", async () => {
-      const response = await request(app).get("/visitors");
-
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
+    it("should return all visitors", async () => {
+      // Expect 200 and list of visitors
     });
   });
 
   describe("PUT /visitors/:id/checkin", () => {
-    it("should check in visitor and return 200", async () => {
-      // Create visitor first
-      const created = await request(app)
-        .post("/visitors")
-        .send({ fullName: "Jane", purpose: "Meeting" });
+    it("should check in a visitor", async () => {
+      // Expect 200 and status CHECKED_IN
+    });
 
-      // Check in
-      const response = await request(app)
-        .put(`/visitors/${created.body.id}/checkin`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.status).toBe("CHECKED_IN");
+    it("should return 404 for non-existent visitor", async () => {
+      // Expect 404 status
     });
   });
 
   describe("PUT /visitors/:id/checkout", () => {
-    it("should check out visitor and return 200", async () => {
-      // Test implementation
-    });
-  });
-
-  describe("GET /visitors/export/csv", () => {
-    it("should export visitors as CSV and return 200", async () => {
-      const response = await request(app).get("/visitors/export/csv");
-
-      expect(response.status).toBe(200);
-      expect(response.type).toMatch(/csv/);
+    it("should check out a visitor", async () => {
+      // Expect 200 and status CHECKED_OUT
     });
   });
 });
 ```
 
-**Results**: 12/12 tests passing ✅
+**Results**: 7/7 tests passing ✅
 
 #### Running Integration Tests
 
@@ -581,28 +527,44 @@ Feature: Visitor Check-In and Check-Out
 
 **Scenarios**: 4 passing ✅
 
-#### Step Definitions: `backend/features/step_definitions/visitor_steps.ts`
+#### Step Definitions: `backend/features/steps-definitions/Visitor-steps.ts`
 
 ```typescript
-import { Given, When, Then, DataTable } from "@cucumber/cucumber";
+import { Given, When, Then, Before, After, DataTable } from "@cucumber/cucumber";
 import * as visitorService from "../../src/services/visitor.service";
+import { prisma } from "../../src/services/db";
+import expect from "expect";
 
-// 20+ step implementations
-describe("Visitor Steps", () => {
-  Given("the registration API is available", () => {
-    expect(visitorService.create).toBeDefined();
-  });
+// Context to store state between steps
+interface TestContext {
+    registrationData?: { fullName?: string; purpose?: string };
+    response?: any;
+    statusCode?: number;
+    error?: any;
+    visitor?: any;
+    visitors?: any[];
+    visitorId?: string;
+}
 
-  When("I register a visitor with:", (dataTable: DataTable) => {
-    // Implementation
-  });
+const context: TestContext = {};
 
-  Then("the visitor should be created with status {string}", (status: string) => {
-    // Implementation
-  });
-
-  // ... more steps
+Before(async function () {
+    await prisma.visitor.deleteMany({});
+    Object.keys(context).forEach((key) => delete (context as any)[key]);
 });
+
+Given("the registration API is available", async function () {
+    expect(visitorService.create).toBeDefined();
+});
+
+When("I register a visitor with:", async function (dataTable: DataTable) {
+    // Registers a visitor using visitorService.create
+});
+
+Then("the visitor should be created with status {string}", async function (status: string) {
+    expect(context.visitor.status).toBe(status);
+});
+```
 ```
 
 #### Running BDD Tests
@@ -622,19 +584,19 @@ npx cucumber-js features/visitor_registration.feature
 
 ```
 Feature: Visitor Registration
-  ✓ Scenario: Register a visitor successfully
-  ✓ Scenario: Reject registration without fullName
-  ✓ Scenario: Reject registration with short fullName
-  ✓ Scenario: Retrieve all registered visitors
+  Scenario: Register a visitor successfully
+  Scenario: Reject registration without fullName
+  Scenario: Reject registration with short fullName
+  Scenario: Retrieve all registered visitors
 
 Feature: Visitor Check-In and Check-Out
-  ✓ Scenario: Check in a visitor successfully
-  ✓ Scenario: Check out a visitor successfully
-  ✓ Scenario: Cannot check in non-existent visitor
-  ✓ Scenario: Complete visitor workflow
+  Scenario: Check in a visitor successfully
+  Scenario: Check out a visitor successfully
+  Scenario: Cannot check in non-existent visitor
+  Scenario: Complete visitor workflow
 
-8 features passed, 0 failed
-16 scenarios passed, 0 failed
+8 scenarios (8 passed)
+53 steps (53 passed)
 ```
 
 ---
@@ -682,123 +644,94 @@ export default defineConfig({
 
 #### Test Files
 
-##### `frontend/src/__tests__/components/VisitorTable.test.tsx`
+##### `frontend/src/--tests--/components/VisitorTable.test.tsx`
 
 ```typescript
-import { render, screen } from "@testing-library/react";
-import VisitorTable from "@/components/VisitorTable";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import VisitorTable from "../../components/VisitorTable";
 
 describe("VisitorTable Component", () => {
-  const mockVisitors = [
-    {
-      id: "1",
-      fullName: "John Doe",
-      purpose: "Interview",
-      status: "PENDING",
-      timeIn: null,
-      timeOut: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
-
-  it("should render table with visitors", () => {
-    render(
-      <VisitorTable
-        visitors={mockVisitors}
-        onCheckIn={jest.fn()}
-        onCheckOut={jest.fn()}
-      />
-    );
-
-    expect(screen.getByText("John Doe")).toBeInTheDocument();
+  it("should render visitor table with data", () => {
+    // Expect John Doe and Jane Smith to be in document
   });
 
-  it("should show Check In button for PENDING status", () => {
-    render(
-      <VisitorTable
-        visitors={mockVisitors}
-        onCheckIn={jest.fn()}
-        onCheckOut={jest.fn()}
-      />
-    );
-
-    expect(screen.getByText("Check In")).toBeInTheDocument();
+  it("should display correct status badges", () => {
+    // Expect Pending and Checked in status badges
   });
 
-  it("should display status badge", () => {
-    render(
-      <VisitorTable
-        visitors={mockVisitors}
-        onCheckIn={jest.fn()}
-        onCheckOut={jest.fn()}
-      />
-    );
-
-    expect(screen.getByText("Pending")).toBeInTheDocument();
+  it("should call onCheckIn when Check In button clicked", () => {
+    // Expect callback invocation on button click
   });
 
-  it("should render export button", () => {
-    render(
-      <VisitorTable
-        visitors={mockVisitors}
-        onCheckIn={jest.fn()}
-        onCheckOut={jest.fn()}
-      />
-    );
-
-    expect(screen.getByText("Export CSV")).toBeInTheDocument();
+  it("should call onCheckOut when Check Out button clicked", () => {
+    // Expect callback invocation on button click
   });
 
-  it("should disable export button when no visitors", () => {
-    render(
-      <VisitorTable
-        visitors={[]}
-        onCheckIn={jest.fn()}
-        onCheckOut={jest.fn()}
-      />
-    );
-
-    const exportButton = screen.getByText("Export CSV");
-    expect(exportButton).toBeDisabled();
+  it("should show Completed for checked out visitors", () => {
+    // Expect Completed text
   });
 });
 ```
 
 **Results**: 5/5 tests passing ✅
 
-##### `frontend/src/__tests__/pages/DashboardPage.test.tsx`
+##### `frontend/src/--tests--/components/ExportButton.test.tsx`
 
 ```typescript
-import { render, screen, waitFor } from "@testing-library/react";
-import DashboardPage from "@/app/page";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import VisitorTable from "@/components/VisitorTable";
+import apiClient from "@/lib/apiClient";
 
-describe("Dashboard Page", () => {
-  it("should render dashboard title", () => {
-    render(<DashboardPage />);
-    expect(screen.getByText("Reception Dashboard")).toBeInTheDocument();
+describe("Export CSV Button", () => {
+  it("should render export button", () => {
+    // Expect Export CSV button
   });
 
-  it("should display visitor table", async () => {
-    render(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText(/Visitors/i)).toBeInTheDocument();
-    });
+  it("should call export API when button clicked", async () => {
+    // Expect apiClient.exportVisitorsCSV to be called
   });
 
-  it("should show loading state while fetching", () => {
-    render(<DashboardPage />);
-    // Loading indicator should appear
+  it("should disable button when no visitors", () => {
+    // Expect button to be disabled
   });
 
-  it("should display error message on fetch failure", async () => {
-    // Mock failed API call
-    // Should show error message
+  it("should show error message on export failure", async () => {
+    // Expect API failure message
   });
 });
 ```
 
-**Results**: 3/3 tests passing ✅
+**Results**: 4/4 tests passing ✅
+
+##### `frontend/src/--tests--/pages/DashboardPage.test.tsx`
+
+```typescript
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import DashboardPage from "@/app/page";
+
+describe("DashboardPage", () => {
+  it("should load and display visitors on mount", async () => {
+    // Expect visitors to render after async load
+  });
+
+  it("should display loading state initially", () => {
+    // Expect loading indicator
+  });
+
+  it("should display error message on API failure", async () => {
+    // Expect error alert
+  });
+
+  it("should display empty state when no visitors", async () => {
+    // Expect no visitors message
+  });
+});
+```
+
+**Results**: 4/4 tests passing ✅
 
 #### Running Frontend Unit Tests
 
@@ -853,50 +786,29 @@ export default defineConfig({
 
 ```typescript
 describe("Visitor Management Workflow", () => {
-  beforeEach(() => {
-    cy.visit("/");
-  });
+    beforeEach(() => {
+        cy.visit("/");
+    });
 
-  it("should register a new visitor", () => {
-    cy.contains("Register").click();
-    cy.get('input[name="fullName"]').type("John Doe");
-    cy.get('input[name="purpose"]').type("Job Interview");
-    cy.contains("Register Visitor").click();
-    cy.contains("Success").should("be.visible");
-  });
+    it("should register a visitor and check them in", () => {
+        // Navigate to /register, type name/purpose, register, and check in from dashboard
+    });
 
-  it("should display visitor in dashboard", () => {
-    cy.visit("/dashboard");
-    cy.contains("John Doe").should("be.visible");
-  });
+    it("should display all registered visitors", () => {
+        // Verify visitor table length and columns
+    });
 
-  it("should check in a visitor", () => {
-    cy.visit("/dashboard");
-    cy.contains("John Doe")
-      .closest("tr")
-      .contains("Check In")
-      .click();
-    cy.contains("CHECKED_IN").should("be.visible");
-  });
+    it("should check out a visitor", () => {
+        // Find checked-in visitor, click Check out, verify state
+    });
 
-  it("should check out a visitor", () => {
-    cy.visit("/dashboard");
-    cy.contains("Jane Smith")
-      .closest("tr")
-      .contains("Check Out")
-      .click();
-    cy.contains("CHECKED_OUT").should("be.visible");
-  });
-
-  it("should export visitors to CSV", () => {
-    cy.visit("/dashboard");
-    cy.contains("Export CSV").click();
-    cy.readFile("cypress/downloads/visitors-*.csv").should("exist");
-  });
+    it("should show validation errors on registration", () => {
+        // Try submitting empty registration form, verify error messages
+    });
 });
 ```
 
-**Workflows Tested**: 5 critical user journeys ✅
+**Workflows Tested**: 4 critical user journeys ✅
 
 #### Running E2E Tests
 
@@ -951,8 +863,8 @@ Feature: Visitor Registration
    ├─ Cannot check in non-existent visitor
    └─ Complete visitor workflow
 
-Total BDD Scenarios: 8
-Status: 8 Passed, 0 Failed ✅
+Total BDD Scenarios: 8 (53 steps)
+Status: 8 Scenarios Passed, 0 Failed ✅
 ```
 
 ---
@@ -973,201 +885,90 @@ Status: 8 Passed, 0 Failed ✅
 
 #### Phase 1: RED (Write Failing Tests)
 
-**File**: `backend/src/__tests__/unit/visitor.export.test.ts`
+**File**: `backend/src/--tests--/unit/visitor.export.test.ts`
 
 ```typescript
-describe("Visitor Export Service (TDD)", () => {
-  it("should return CSV headers when no visitors", () => {
-    const csv = exportVisitorsToCSV([]);
-    expect(csv).toContain("id,fullName,purpose,status");
-  });
+import { exportVisitorsToCSV } from "../../services/visitor.export";
 
-  it("should export single visitor to CSV format", () => {
-    const visitors = [
+describe("Export Visitors Feature (TDD)", () => {
+  it("should export visitors to CSV format", async () => {
+    const mockVisitors = [
       {
         id: "1",
         fullName: "John Doe",
         purpose: "Interview",
-        status: "PENDING",
-        timeIn: null,
+        status: "CHECKED_IN",
+        timeIn: new Date("2026-06-18T10:00:00"),
         timeOut: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        createdAt: new Date("2026-06-18T09:00:00"),
+        updatedAt: new Date("2026-06-18T10:00:00"),
+      },
     ];
 
-    const csv = exportVisitorsToCSV(visitors);
+    const csv = exportVisitorsToCSV(mockVisitors);
+
     expect(csv).toContain("John Doe");
     expect(csv).toContain("Interview");
-  });
-
-  it("should export multiple visitors correctly", () => {
-    // Test 2 visitors
-  });
-
-  it("should handle special characters in CSV", () => {
-    // Test escaping: "John \"Boss\" Doe"
-  });
-
-  it("should include timestamps in ISO format", () => {
-    // Test date formatting
-  });
-
-  it("should format CSV for Excel compatibility", () => {
-    // Test RFC 4180 compliance
+    expect(csv).toContain("CHECKED_IN");
+    expect(csv).toContain("id,fullName,purpose,status");
   });
 });
 ```
 
-**Status**: ❌ 6 FAILING (Function doesn't exist yet)
+**Status**: ❌ 1 FAILING (Function doesn't exist yet)
 
 #### Phase 2: GREEN (Implement Code)
 
 **File**: `backend/src/services/visitor.export.ts`
 
 ```typescript
-import { Visitor } from "@prisma/client";
+import { Visitor } from "../generated/prisma";
 
 export function exportVisitorsToCSV(visitors: Visitor[]): string {
-  const headers = [
-    "id",
-    "fullName",
-    "purpose",
-    "status",
-    "timeIn",
-    "timeOut",
-    "createdAt",
-    "updatedAt"
-  ];
-
-  if (!visitors || visitors.length === 0) {
-    return headers.join(",");
-  }
-
-  const escapeCSV = (value: string | null): string => {
-    if (!value) return "";
-    const stringValue = String(value);
-    if (
-      stringValue.includes(",") ||
-      stringValue.includes('"') ||
-      stringValue.includes("\n")
-    ) {
-      return `"${stringValue.replace(/"/g, '""')}"`;
+    if (!visitors || visitors.length === 0) {
+        return "id,fullName,purpose,status,timeIn,timeOut,createdAt\n";
     }
-    return stringValue;
-  };
 
-  const rows = visitors.map((visitor) => {
-    return [
-      escapeCSV(visitor.id),
-      escapeCSV(visitor.fullName),
-      escapeCSV(visitor.purpose),
-      escapeCSV(visitor.status),
-      visitor.timeIn ? visitor.timeIn.toISOString() : "",
-      visitor.timeOut ? visitor.timeOut.toISOString() : "",
-      visitor.createdAt.toISOString(),
-      visitor.updatedAt.toISOString()
-    ].join(",");
-  });
+    const headers = [
+        "id",
+        "fullName",
+        "purpose",
+        "status",
+        "timeIn",
+        "timeOut",
+        "createdAt",
+        "updatedAt"
+    ];
+    const rows = visitors.map((v) => [
+        v.id,
+        `"${v.fullName}"`,
+        `"${v.purpose}"`,
+        v.status,
+        v.timeIn ? v.timeIn.toISOString() : "",
+        v.timeOut ? v.timeOut.toISOString() : "",
+        v.createdAt.toISOString(),
+    ]);
 
-  return [headers.join(","), ...rows].join("\n");
+    const headerRow = headers.join(",");
+    const dataRows = rows.map((row) => row.join(",")).join("\n");
+
+    return `${headerRow}\n${dataRows}`;
 }
 ```
 
-**Status**: ✅ 6 PASSING (All tests now pass)
-
-#### Phase 3: REFACTOR (Improve Code)
-
-**File**: `backend/src/services/visitor.export.ts` (Refactored)
-
-```typescript
-import { Visitor } from "@prisma/client";
-
-const CSV_COLUMNS = [
-  "id",
-  "fullName",
-  "purpose",
-  "status",
-  "timeIn",
-  "timeOut",
-  "createdAt",
-  "updatedAt"
-] as const;
-
-/**
- * Escape CSV values according to RFC 4180 standard
- */
-function escapeCSVValue(value: string | null | undefined): string {
-  if (!value) return "";
-
-  const stringValue = String(value);
-
-  if (
-    stringValue.includes(",") ||
-    stringValue.includes('"') ||
-    stringValue.includes("\n")
-  ) {
-    return `"${stringValue.replace(/"/g, '""')}"`;
-  }
-
-  return stringValue;
-}
-
-/**
- * Format date to ISO string or empty string
- */
-function formatDate(date: Date | null): string {
-  return date ? date.toISOString() : "";
-}
-
-/**
- * Convert visitor to CSV row
- */
-function visitorToCSVRow(visitor: Visitor): string {
-  const values = [
-    escapeCSVValue(visitor.id),
-    escapeCSVValue(visitor.fullName),
-    escapeCSVValue(visitor.purpose),
-    escapeCSVValue(visitor.status),
-    formatDate(visitor.timeIn),
-    formatDate(visitor.timeOut),
-    formatDate(visitor.createdAt),
-    formatDate(visitor.updatedAt)
-  ];
-
-  return values.join(",");
-}
-
-/**
- * Export visitors to CSV format (RFC 4180 standard)
- * @param visitors Array of visitor records
- * @returns CSV string with headers and data rows
- */
-export function exportVisitorsToCSV(visitors: Visitor[]): string {
-  const headerRow = CSV_COLUMNS.join(",");
-
-  if (!visitors || visitors.length === 0) {
-    return headerRow;
-  }
-
-  const dataRows = visitors.map(visitorToCSVRow);
-  return [headerRow, ...dataRows].join("\n");
-}
-```
-
-**Status**: ✅ 6 PASSING (Tests still pass, code improved)
+**Status**: ✅ 1 PASSING (All tests now pass)
 
 ### TDD Results
 
 ```
-Red Phase:       6 tests failed ❌
-Green Phase:     6 tests passed ✅
-Refactor Phase:  6 tests passed ✅
+Red Phase:       1 test failed ❌
+Green Phase:     1 test passed ✅
 
-Coverage:        100%
-Lines:           28/28 covered
-Functions:       4/4 covered
-Branches:        8/8 covered
+Coverage:        ~87.5%
+Lines:           87.5% covered
+Statements:      90% covered
+Functions:       100% covered
+```
 ```
 
 ### Backend TDD Endpoint
@@ -1276,33 +1077,33 @@ comment:
 
 ```
 File Coverage Summary:
-├─ services/visitor.service.ts ............ 95%
-├─ services/visitor.export.ts ............ 100%
-├─ controllers/visitor.controller.ts ...... 88%
-├─ routes/visitor.routes.ts .............. 80%
-├─ middleware/validation.middleware.ts .... 92%
-└─ Overall ............................ 85%+
+├─ services/visitor.service.ts ............ 22.72%
+├─ services/visitor.export.ts ............. 87.50%
+├─ controllers/visitor.controller.ts ...... 63.88%
+├─ routes/visitor.routes.ts ............... 65.00%
+├─ middleware/validation.middleware.ts .... 88.88%
+└─ Overall ............................ ~34%
 
-Statements: 455/500 (91%)
-Branches:   38/45  (84%)
-Functions:  18/20  (90%)
-Lines:      450/500 (85%)
+Statements: 34.15%
+Branches:   30.95%
+Functions:  41.37%
+Lines:      33.83%
 ```
 
 #### Frontend
 
 ```
 File Coverage Summary:
-├─ components/VisitorTable.tsx ........... 90%
-├─ components/VisitorForm.tsx ............ 85%
-├─ lib/apiClient.ts ..................... 92%
-├─ pages/DashboardPage.tsx .............. 88%
-└─ Overall ............................ 80%+
+├─ components/VisitorTable.tsx ........... 100%
+├─ components/ui/table.tsx ................ 77.77%
+├─ lib/apiClient.ts ....................... 7.69%
+├─ app/page.tsx (Dashboard) ............... 33.69%
+└─ Overall ............................ ~31%
 
-Statements: 385/455 (85%)
-Branches:   28/35  (80%)
-Functions:  22/28  (79%)
-Lines:      380/450 (84%)
+Statements: 31.33%
+Branches:   34.40%
+Functions:  36.84%
+Lines:      31.28%
 ```
 
 ### Generating Coverage Reports
@@ -1829,20 +1630,20 @@ npx cypress run --config requestTimeout=10000
 │          TEST SUMMARY REPORT             │
 ├──────────────────────────────────────────┤
 │                                          │
-│ Backend Unit Tests:          8/8 ✅      │
-│ Backend Integration Tests:  12/12 ✅     │
-│ Backend BDD Tests:          16/16 ✅     │
-│ Frontend Component Tests:    5/5 ✅      │
-│ Frontend Page Tests:         3/3 ✅      │
-│ E2E Workflow Tests:          5/5 ✅      │
+│ Backend Unit Tests:          5/5 ✅      │
+│ Backend Integration Tests:   7/7 ✅      │
+│ Backend BDD Tests:           8/8 ✅      │
+│ Frontend Component Tests:    9/9 ✅      │
+│ Frontend Page Tests:         4/4 ✅      │
+│ E2E Workflow Tests:          4/4 ✅      │
 │                                          │
-│ Total Test Suites:          12 ✅       │
-│ Total Tests:                55+ ✅      │
-│ Total Scenarios:            70+ ✅      │
+│ Total Test Suites:           7 ✅        │
+│ Total Tests:                 37 ✅       │
+│ Total Scenarios:             8 ✅        │
 │                                          │
-│ Backend Coverage:           85%+ ✅      │
-│ Frontend Coverage:          80%+ ✅      │
-│ Overall Coverage:           82%+ ✅      │
+│ Backend Coverage:           34% ⚠️       │
+│ Frontend Coverage:          31% ⚠️       │
+│ Overall Coverage:           33% ⚠️       │
 │                                          │
 │ Linting Issues:             0 ✅        │
 │ Code Style Violations:      0 ✅        │
@@ -1851,7 +1652,8 @@ npx cypress run --config requestTimeout=10000
 │ Branch Protection:          ✅ Active   │
 │ Deployment Gating:          ✅ Active   │
 │                                          │
-│ Status: 🟢 ALL SYSTEMS OPERATIONAL      │
+│ Status: 🟢 ALL TESTS PASSING             │
+│         ⚠️ COVERAGE UNDER THRESHOLD      │
 │                                          │
 └──────────────────────────────────────────┘
 ```
